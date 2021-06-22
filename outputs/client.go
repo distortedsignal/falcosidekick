@@ -244,5 +244,13 @@ func (c *Client) BasicAuth(username, password string) {
 
 // AddHeader adds an HTTP Header to the Client.
 func (c *Client) AddHeader(key, value string) {
+	for i, headerObj := range c.HeaderList {
+		if headerObj.Key == key {
+			// Remove the element from the slice, as per here:
+			// https://stackoverflow.com/a/37335777/617122
+			c.HeaderList[len(c.HeaderList)-1], c.HeaderList[i] = c.HeaderList[i], c.HeaderList[len(c.HeaderList)-1]
+			c.HeaderList = c.HeaderList[:len(c.HeaderList)-1]
+		}
+	}
 	c.HeaderList = append(c.HeaderList, Header{Key: key, Value: value})
 }

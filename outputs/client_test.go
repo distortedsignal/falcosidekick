@@ -102,6 +102,22 @@ func TestAddHeader(t *testing.T) {
 	nc.Post("")
 }
 
+func TestAddHeaderEnforceUnique(t *testing.T) {
+	headerKey, headerVal1, headerVal2 := "key", "val1", "val2"
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		passedVal := r.Header.Get(headerKey)
+		require.Equal(t, passedVal, headerVal2)
+	}))
+	nc, err := NewClient("", ts.URL, false, true, &types.Configuration{}, &types.Statistics{}, &types.PromStatistics{}, nil, nil)
+	require.Nil(t, err)
+	require.NotEmpty(t, nc)
+
+	nc.AddHeader(headerKey, headerVal1)
+	nc.AddHeader(headerKey, headerVal2)
+
+	nc.Post("")
+}
+
 func TestAddBasicAuth(t *testing.T) {
 	username, password := "user", "pass"
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
